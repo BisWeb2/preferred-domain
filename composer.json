@@ -1,0 +1,37 @@
+{
+  "name": "bisweb/preferreddomain",
+  "description": "Preferred Domain Setting Module for OXID eShop",
+  "version": "1.0.0",
+  "type": "oxideshop-module",
+  "keywords": ["oxid", "modules", "eShop", "preferred domain"],
+  "homepage": "https://bisweb.me/module/seo/bevorzugte-domain.html",
+  "readme": "README.md",
+  "time": "2019-11-06",
+  "license": "MIT License",
+  "authors": [
+    {
+      "name": "Tim Bischoff",
+      "email": "tim.bischoff@bisweb.me",
+      "homepage": "https://bisweb.me",
+      "role": "Software Developer"
+    }
+  ],
+  "support": {
+    "email": "tim.bischoff@bisweb.me",
+    "issues": "https://github.com/BisWeb2/preferred-domain/issues",
+    "forum": "https://forum.oxid-esales.com/",
+    "source": "https://github.com/BisWeb2/preferred-domain",
+    "docs": "https://bisweb.me/module/seo/bevorzugte-domain.html"
+  },
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "BisWeb\\PreferredDomain\\": "../../../source/modules/bisweb/preferreddomain"
+    }
+  },
+  "extra": {
+    "oxideshop": {
+      "target-directory": "bisweb/preferreddomain"
+    }
+  }
+}
