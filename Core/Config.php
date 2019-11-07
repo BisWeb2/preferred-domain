@@ -36,8 +36,7 @@ class Config extends Config_parent
             $myUtilsUrl = Registry::getUtilsUrl();
             $sCurrentUrl = $myUtilsUrl->getCurrentUrl();
 
-            if($this->isBisWebPreferredDomainPreferredDomainSsl() && $blSsl === false) {
-                // Redirection from http to https
+            if($this->isBisWebPreferredDomainPreferredDomainSsl()) {
                 if($this->ifBisWebPreferredDomainCheckRedirectionNeeded($sCurrentUrl)) {
                     $this->setIsSsl(true);
                     $this->redirectBisWebPreferredDomain();
