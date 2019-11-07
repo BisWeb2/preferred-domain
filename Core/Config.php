@@ -79,12 +79,21 @@ class Config extends Config_parent
         $aOptions = [];
 
         $sShopURL = Registry::getConfig()->getConfigParam("sShopURL");
-        $aParseUrl = $this->_parseBisWebPreferredDomainUrl($sShopURL);
+
+        // Check is "normal" Shop URL
         $iCountPoint = substr_count($sShopURL, '.');
-        // with and without Third-Level e.g. www. or dev.
         if($iCountPoint == 1 OR $iCountPoint == 2) {
-            $aOptions['https://www.example.com']    = 'https://'.$aParseUrl['third_level'].$aParseUrl['second_level'].$aParseUrl['top_level'];
-            $aOptions['https://example.com']        = 'https://'.$aParseUrl['second_level'].$aParseUrl['top_level'];
+            $aParseUrl = $this->_parseBisWebPreferredDomainUrl($sShopURL);
+            if($aParseUrl['third_level'] === '') {
+                $aOptions['https://www.example.com']    = 'https://www.'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+                $aOptions['https://example.com']        = 'https://'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+            } elseif($aParseUrl['third_level'] === 'www') {
+                $aOptions['https://www.example.com']    = 'https://'.$aParseUrl['third_level'].'.'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+                $aOptions['https://example.com']        = 'https://'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+            } else {
+                $aOptions['https://www.example.com']    = 'https://'.$aParseUrl['third_level'].'.'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+                $aOptions['https://example.com']        = 'https://'.$aParseUrl['third_level'].'.'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+            }
         } else {
             // error
             $aOptions['error'] = $sShopURL;
@@ -136,35 +145,44 @@ class Config extends Config_parent
     {
         $aParseUrl = [];
 
+        // Cases
+        // $url = 'https://www.example.com/';
+        // $url = 'https://example.com/';
+        // $url = 'https://www.example.com/shop/';
+        // $url = 'https://example.com/shop/';
+        $aUrl = parse_url($url);
+
         // Protocol
-        if(strpos($url, 'https://') !== false) {
-            $sProtocol = 'https://';
-        } else {
-            $sProtocol = 'http://';
-        }
+        $sProtocol = $aUrl['scheme'];
 
-        // Third Level Domain
-        $iCountPoint = substr_count($url, '.');
-        $aUrl = explode('.', str_replace($sProtocol, '', $url));
+        // Level Domain Parts
+        $iCountPoint = substr_count($aUrl['host'], '.');
+        $aLevelDomainParts = explode('.', $aUrl['host']);
         if($iCountPoint == 1) {
-            $sThirdLevel = '';
+            $sThirdLevel    = '';
+            $sSecondLevel   = $aLevelDomainParts[0];
+            $sTopLevel      = $aLevelDomainParts[1];
         } elseif($iCountPoint == 2) {
-            $sThirdLevel = $aUrl[0].'.';
+            $sThirdLevel    = $aLevelDomainParts[0];
+            $sSecondLevel   = $aLevelDomainParts[1];
+            $sTopLevel      = $aLevelDomainParts[2];
         } else {
-            $sThirdLevel = '';
+            // Fallback
+            $sThirdLevel    = '';
+            $sSecondLevel   = '';
+            $sTopLevel      = '';
         }
 
-        // Second Level Domain
-        $sSecondLevel = $aUrl[1];
-
-        // Top Level Domain
-        $sTopLevel = '.'.$aUrl[2];
+        // Extend Top Level Domain
+        if(isset($aUrl['path'])) {
+            $sTopLevel = $sTopLevel.$aUrl['path'];
+        }
 
         // URL Parsing
-        $aParseUrl['protocol']      = $sProtocol; // http://
-        $aParseUrl['third_level']   = $sThirdLevel; // www.
+        $aParseUrl['protocol']      = $sProtocol; // https://
+        $aParseUrl['third_level']   = $sThirdLevel; // www or dev
         $aParseUrl['second_level']  = $sSecondLevel; // example
-        $aParseUrl['top_level']     = $sTopLevel; // .com/ oder .com/shop/
+        $aParseUrl['top_level']     = $sTopLevel; // com/ or com/shop/
 
         return $aParseUrl;
     }
