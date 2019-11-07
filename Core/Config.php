@@ -39,7 +39,8 @@ class Config extends Config_parent
             if($this->isBisWebPreferredDomainPreferredDomainSsl()) {
                 if($this->ifBisWebPreferredDomainCheckRedirectionNeeded($sCurrentUrl)) {
                     $this->setIsSsl(true);
-                    $this->redirectBisWebPreferredDomain();
+                    $sRedirectUrl = $this->getBisWebPreferredDomainRedirectUrl($sCurrentUrl);
+                    $this->redirectBisWebPreferredDomain($sRedirectUrl);
                 }
             }
         }
@@ -101,9 +102,11 @@ class Config extends Config_parent
         return $aOptions;
     }
 
-    public function redirectBisWebPreferredDomain()
+    public function redirectBisWebPreferredDomain($sRedirectUrl = false)
     {
-        $sRedirectUrl = $this->getBisWebPreferredDomainPreferredDomain();
+        if($sRedirectUrl === false) {
+            $sRedirectUrl = $this->getBisWebPreferredDomainPreferredDomain();
+        }
         Registry::getUtils()->redirect($sRedirectUrl, false, 301);
     }
 
@@ -132,12 +135,30 @@ class Config extends Config_parent
         $sBisWebPreferredDomainShopURL = $this->getBisWebPreferredDomainPreferredDomain();
         if(
             strpos($sBisWebPreferredDomainShopURL, 'example.com') === false &&
-            $url !== $sBisWebPreferredDomainShopURL
+            strpos($url, $sBisWebPreferredDomainShopURL) === false
         ) {
             $blRedirectionNeeded = true;
         }
 
         return $blRedirectionNeeded;
+    }
+
+    public function getBisWebPreferredDomainRedirectUrl($sCurrentUrl)
+    {
+        // e.g. https://example.com/category/ musst be https://www.example.com/category/
+        $sBisWebPreferredDomainShopURL = $this->getBisWebPreferredDomainPreferredDomain();
+        $aRedirection = [$sBisWebPreferredDomainShopURL, $sBisWebPreferredDomainShopURL, $sBisWebPreferredDomainShopURL];
+
+        $aParseUrl = $this->_parseBisWebPreferredDomainUrl($sBisWebPreferredDomainShopURL);
+        $sUrlEnding = $aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+        $sHttpWww = 'http://'.$aParseUrl['third_level'].'.'.$sUrlEnding;
+        $sHttp = 'http://'.$sUrlEnding;
+        $sHttpsWww = 'https://'.$aParseUrl['third_level'].'.'.$sUrlEnding;
+        $sHttps = 'https://'.$sUrlEnding;
+        $aOtherCases = [$sHttpWww, $sHttp, $sHttpsWww, $sHttps];
+        $aOtherCases = array_diff($aOtherCases, [$sBisWebPreferredDomainShopURL]);
+
+        return str_replace($aOtherCases, $aRedirection, $sCurrentUrl);
     }
 
     protected function _parseBisWebPreferredDomainUrl($url)
