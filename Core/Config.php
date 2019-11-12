@@ -149,11 +149,16 @@ class Config extends Config_parent
         $sBisWebPreferredDomainShopURL = $this->getBisWebPreferredDomainPreferredDomain();
         $aRedirection = [$sBisWebPreferredDomainShopURL, $sBisWebPreferredDomainShopURL, $sBisWebPreferredDomainShopURL];
 
-        $aParseUrl = $this->_parseBisWebPreferredDomainUrl($sBisWebPreferredDomainShopURL);
+        $aParseUrl = $this->_parseBisWebPreferredDomainUrl($sCurrentUrl);
         $sUrlEnding = $aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
-        $sHttpWww = 'http://'.$aParseUrl['third_level'].'.'.$sUrlEnding;
+        if($aParseUrl['third_level'] == '') {
+            $sHttpWww = 'http://www.'.$sUrlEnding;
+            $sHttpsWww = 'https://www.'.$sUrlEnding;
+        } else {
+            $sHttpWww = 'http://'.$aParseUrl['third_level'].'.'.$sUrlEnding;
+            $sHttpsWww = 'https://'.$aParseUrl['third_level'].'.'.$sUrlEnding;
+        }
         $sHttp = 'http://'.$sUrlEnding;
-        $sHttpsWww = 'https://'.$aParseUrl['third_level'].'.'.$sUrlEnding;
         $sHttps = 'https://'.$sUrlEnding;
         $aOtherCases = [$sHttpWww, $sHttp, $sHttpsWww, $sHttps];
         $aOtherCases = array_diff($aOtherCases, [$sBisWebPreferredDomainShopURL]);
@@ -200,7 +205,7 @@ class Config extends Config_parent
 
         // URL Parsing
         $aParseUrl['protocol']      = $sProtocol; // https://
-        $aParseUrl['third_level']   = $sThirdLevel; // www or dev
+        $aParseUrl['third_level']   = $sThirdLevel; // empty, www or dev
         $aParseUrl['second_level']  = $sSecondLevel; // example
         $aParseUrl['top_level']     = $sTopLevel; // com/ or com/shop/
 
