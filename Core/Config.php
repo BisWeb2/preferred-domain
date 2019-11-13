@@ -30,6 +30,31 @@ class Config extends Config_parent
     {
         $blSsl = parent::isSsl();
 
+        $this->handlingBisWebPreferredDomainRedirection();
+
+        return $blSsl;
+    }
+
+    public function getShopUrl($lang = null, $admin = null)
+    {
+        $url = parent::getShopUrl($lang, $admin);
+
+        $this->handlingBisWebPreferredDomainRedirection();
+
+        return $url;
+    }
+
+    public function getSslShopUrl($lang = null)
+    {
+        $url = parent::getSslShopUrl($lang);
+
+        $this->handlingBisWebPreferredDomainRedirection();
+
+        return $url;
+    }
+
+    public function handlingBisWebPreferredDomainRedirection()
+    {
         // only frontend redirection
         $admin = $this->isAdmin();
         if($admin === false) {
@@ -45,42 +70,6 @@ class Config extends Config_parent
                 $this->redirectBisWebPreferredDomain($sRedirectUrl);
             }
         }
-
-        return $blSsl;
-    }
-
-    public function getShopUrl($lang = null, $admin = null)
-    {
-        $url = parent::getShopUrl($lang, $admin);
-
-        // only frontend redirection
-        $admin = isset($admin) ? $admin : $this->isAdmin();
-        if(
-            $admin === false &&
-            $this->isBisWebPreferredDomainPreferredDomainSsl() &&
-            $this->ifBisWebPreferredDomainCheckRedirectionNeeded($url)
-        ) {
-            $this->redirectBisWebPreferredDomain();
-        }
-
-        return $url;
-    }
-
-    public function getSslShopUrl($lang = null)
-    {
-        $url = parent::getSslShopUrl($lang);
-
-        // only frontend redirection
-        $admin = $this->isAdmin();
-        if(
-            $admin === false &&
-            $this->isBisWebPreferredDomainPreferredDomainSsl() &&
-            $this->ifBisWebPreferredDomainCheckRedirectionNeeded($url)
-        ) {
-            $this->redirectBisWebPreferredDomain();
-        }
-
-        return $url;
     }
 
     public function getBisWebPreferredDomainOptions()
@@ -164,12 +153,10 @@ class Config extends Config_parent
 
     public function getBisWebPreferredDomainRedirectUrl($sCurrentUrl)
     {
-        // e.g. https://example.com/category/ musst be https://www.example.com/category/
-        $sBisWebPreferredDomainShopURL = $this->getBisWebPreferredDomainPreferredDomain();
-        $aRedirection = [$sBisWebPreferredDomainShopURL, $sBisWebPreferredDomainShopURL, $sBisWebPreferredDomainShopURL];
+        // e.g. https://example.com/category/ must be https://www.example.com/category/
 
         $aParseUrl = $this->_parseBisWebPreferredDomainUrl($sCurrentUrl);
-        $sUrlEnding = $aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+        $sUrlEnding = $aParseUrl['second_level'].'.'.$aParseUrl['top_level'].'/'.$aParseUrl['path'];
         if($aParseUrl['third_level'] == '') {
             $sHttpWww = 'http://www.'.$sUrlEnding;
             $sHttpsWww = 'https://www.'.$sUrlEnding;
@@ -179,10 +166,19 @@ class Config extends Config_parent
         }
         $sHttp = 'http://'.$sUrlEnding;
         $sHttps = 'https://'.$sUrlEnding;
-        $aOtherCases = [$sHttpWww, $sHttp, $sHttpsWww, $sHttps];
-        $aOtherCases = array_diff($aOtherCases, [$sBisWebPreferredDomainShopURL]);
+        $aSearchesOtherCases = [$sHttpWww, $sHttp, $sHttpsWww, $sHttps];
 
-        return str_replace($aOtherCases, $aRedirection, $sCurrentUrl);
+        $sBisWebPreferredDomainShopURL = $this->getBisWebPreferredDomainPreferredDomain();
+        if($aParseUrl['path'] == '') {
+            $sReplaceUrl = $sBisWebPreferredDomainShopURL;
+        } else {
+            $sReplaceUrl = $sBisWebPreferredDomainShopURL.$aParseUrl['path'];
+        }
+        $aReplacesRedirection = [$sReplaceUrl, $sReplaceUrl, $sReplaceUrl, $sReplaceUrl];
+
+        $sRedirection = str_replace($aSearchesOtherCases, $aReplacesRedirection, $sCurrentUrl);
+
+        return $sRedirection;
     }
 
     protected function _parseBisWebPreferredDomainUrl($url)
@@ -219,14 +215,17 @@ class Config extends Config_parent
 
         // Extend Top Level Domain
         if(isset($aUrl['path'])) {
-            $sTopLevel = $sTopLevel.$aUrl['path'];
+            $sPath = substr($aUrl['path'], 1); // removing leading slash
+        } else {
+            $sPath = '';
         }
 
         // URL Parsing
         $aParseUrl['protocol']      = $sProtocol; // https://
         $aParseUrl['third_level']   = $sThirdLevel; // empty, www or dev
         $aParseUrl['second_level']  = $sSecondLevel; // example
-        $aParseUrl['top_level']     = $sTopLevel; // com/ or com/shop/
+        $aParseUrl['top_level']     = $sTopLevel; // com
+        $aParseUrl['path']          = $sPath; // empty or shop/
 
         return $aParseUrl;
     }
