@@ -5,19 +5,12 @@ are forwarded.
 
 ## Feature
 
-Choose your preferred Domain in Module Settings.
+Set your preferred Domain in config.inc.php and see your preferred Domain in Module Settings.
 
 ## Recommended
 
-I recommended to use SSL Protocol. In consequence of recommended to use SSL Protocol 
-this Module only provided Redirection from "http" to "https".
-
-Additional hint set your preferred Domain in config.inc.php for both config variables. 
-
-```php
-$this->sShopURL     = 'https://www.example.com'; // eShop base url, required
-$this->sSSLShopURL  = 'https://www.example.com'; // eShop SSL url, optional
-```
+I recommended to use SSL Protocol. In consequence of recommended to use SSL Protocol this 
+Module only provided Redirection from "http" to "https".
 
 ## Possible Domains Variants
 
@@ -26,8 +19,8 @@ $this->sSSLShopURL  = 'https://www.example.com'; // eShop SSL url, optional
 - http://example.com
 - https://example.com
 
-This Module set your preferred Domain and for the other three Domains
-set a permanently Redirection with 301 HTTP-Status. 
+This Module set your preferred Domain and for the other three Domains set a permanently 
+Redirection with 301 HTTP-Status. 
 
 ## Requirements
 
@@ -35,14 +28,34 @@ set a permanently Redirection with 301 HTTP-Status.
 * Access via Console possible
 * Composer is installed on your Server
 
+## Preparation Configuration
+
+Set your preferred Domain in config.inc.php for both config variables. 
+
+Hint remember to change the file permissions to edit the file.
+
+```bash
+chmod 666 config.inc.php
+```
+
+```php
+$this->sShopURL     = 'https://www.example.com'; // eShop base url, required
+$this->sSSLShopURL  = 'https://www.example.com'; // eShop SSL url, optional
+```
+
+```bash
+chmod 444 config.inc.php
+```
+
+Clear your tmp Directory.
+
 ## Module Installation via Composer
 
 1. Login via SSH and change to Shop Root Directory 
 2. Register the Module via Composer
 3. Login into Shop Admin Backend
 4. Activate Preferred Domain Module
-5. Choose your preferred Domain in the Module Setting Tab
-6. Save the Module Setting
+5. See your preferred Domain in the Module Setting Tab
 
 ## Composer Install Command
 

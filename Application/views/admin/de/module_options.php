@@ -14,11 +14,13 @@ $sLangName = 'Deutsch';
 $aLang = [
     'charset' => 'UTF-8',
     'SHOP_MODULE_GROUP_main' => 'Einstellungen',
-    'SHOP_MODULE_sBisWebPreferredDomainShopURL' => 'Bevorzugte Domain ausw&auml;hlen',
+    'SHOP_MODULE_sBisWebPreferredDomainShopURL' => 'Bevorzugte eingestellte Domain',
     'SHOP_MODULE_sBisWebPreferredDomainShopURL_https://www.example.com' => 'https://www.example.com',
     'SHOP_MODULE_sBisWebPreferredDomainShopURL_https://example.com' => 'https://example.com',
-    'SHOP_MODULE_sBisWebPreferredDomainShopURL_error' => 'Unerwarteter Fehler, mehr als zwei Punkte in "sShopURL" Variable',
-    'HELP_SHOP_MODULE_sBisWebPreferredDomainShopURL' => 'Alle anderen 3 Domainvariationen werden auf bevorzugte Domain weitergeleitet',
+    'SHOP_MODULE_sBisWebPreferredDomainShopURL_no_https_error' => 'Keine sichere HTTPS Verbindung, bitte verwende "https" als Domain Protokoll f&uuml;r die Variablen "sShopURL" und "sSSLShopURL" in config.inc.php Datei',
+    'SHOP_MODULE_sBisWebPreferredDomainShopURL_https_only_error' => 'Variablen "sShopURL" und "sSSLShopURL" nicht identisch in config.inc.php Datei',
+    'SHOP_MODULE_sBisWebPreferredDomainShopURL_unexpected_error' => 'Unerwarteter Fehler, mehr als zwei Punkte in "sShopURL" Variable',
+    'HELP_SHOP_MODULE_sBisWebPreferredDomainShopURL' => 'Bevorzugte Domain ist in config.inc.php Datei zu hinterlegen und wird automatisch bei Modulaktivierung &uuml;bernommen.',
 ];
 
 $oConfig = Registry::getConfig();

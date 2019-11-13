@@ -18,10 +18,10 @@ class Config extends Config_parent
 
     protected function _loadVarsFromFile()
     {
-        //config variables from config.inc.php takes priority over the ones loaded from db
+        // config variables from config.inc.php takes priority over the ones loaded from db
         parent::_loadVarsFromFile();
 
-        //adding trailing slashes
+        // adding trailing slashes
         $fileUtils = Registry::getUtilsFile();
         $this->sBisWebPreferredDomainShopURL = $fileUtils->normalizeDir($this->sBisWebPreferredDomainShopURL);
     }
@@ -36,12 +36,13 @@ class Config extends Config_parent
             $myUtilsUrl = Registry::getUtilsUrl();
             $sCurrentUrl = $myUtilsUrl->getCurrentUrl();
 
-            if($this->isBisWebPreferredDomainPreferredDomainSsl()) {
-                if($this->ifBisWebPreferredDomainCheckRedirectionNeeded($sCurrentUrl)) {
-                    $this->setIsSsl(true);
-                    $sRedirectUrl = $this->getBisWebPreferredDomainRedirectUrl($sCurrentUrl);
-                    $this->redirectBisWebPreferredDomain($sRedirectUrl);
-                }
+            if(
+                $this->isBisWebPreferredDomainPreferredDomainSsl() &&
+                $this->ifBisWebPreferredDomainCheckRedirectionNeeded($sCurrentUrl)
+            ) {
+                $this->setIsSsl(true);
+                $sRedirectUrl = $this->getBisWebPreferredDomainRedirectUrl($sCurrentUrl);
+                $this->redirectBisWebPreferredDomain($sRedirectUrl);
             }
         }
 
@@ -54,7 +55,11 @@ class Config extends Config_parent
 
         // only frontend redirection
         $admin = isset($admin) ? $admin : $this->isAdmin();
-        if($admin === false && $this->ifBisWebPreferredDomainCheckRedirectionNeeded($url)) {
+        if(
+            $admin === false &&
+            $this->isBisWebPreferredDomainPreferredDomainSsl() &&
+            $this->ifBisWebPreferredDomainCheckRedirectionNeeded($url)
+        ) {
             $this->redirectBisWebPreferredDomain();
         }
 
@@ -67,7 +72,11 @@ class Config extends Config_parent
 
         // only frontend redirection
         $admin = $this->isAdmin();
-        if($admin === false && $this->ifBisWebPreferredDomainCheckRedirectionNeeded($url)) {
+        if(
+            $admin === false &&
+            $this->isBisWebPreferredDomainPreferredDomainSsl() &&
+            $this->ifBisWebPreferredDomainCheckRedirectionNeeded($url)
+        ) {
             $this->redirectBisWebPreferredDomain();
         }
 
@@ -78,25 +87,35 @@ class Config extends Config_parent
     {
         $aOptions = [];
 
-        $sShopURL = Registry::getConfig()->getConfigParam("sShopURL");
+        $oRegistry = Registry::getConfig();
+        $sShopURL = $oRegistry->getConfigParam('sShopURL');
+        $blSsl = $oRegistry->isSsl();
 
-        // Check is "normal" Shop URL
-        $iCountPoint = substr_count($sShopURL, '.');
-        if($iCountPoint == 1 OR $iCountPoint == 2) {
-            $aParseUrl = $this->_parseBisWebPreferredDomainUrl($sShopURL);
-            if($aParseUrl['third_level'] === '') {
-                $aOptions['https://www.example.com']    = 'https://www.'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
-                $aOptions['https://example.com']        = 'https://'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
-            } elseif($aParseUrl['third_level'] === 'www') {
-                $aOptions['https://www.example.com']    = 'https://'.$aParseUrl['third_level'].'.'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
-                $aOptions['https://example.com']        = 'https://'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+        if($blSsl) {
+            $blHttpsOnly = $oRegistry->isHttpsOnly();
+            if($blHttpsOnly) {
+                // Check is "normal" Shop URL
+                $iCountPoint = substr_count($sShopURL, '.');
+                if($iCountPoint == 1 OR $iCountPoint == 2) {
+                    $aParseUrl = $this->_parseBisWebPreferredDomainUrl($sShopURL);
+                    if($aParseUrl['third_level'] === '') {
+                        $aOptions['https://example.com']        = 'https://'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+                    } elseif($aParseUrl['third_level'] === 'www') {
+                        $aOptions['https://www.example.com']    = 'https://'.$aParseUrl['third_level'].'.'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+                    } else {
+                        $aOptions['https://www.example.com']    = 'https://'.$aParseUrl['third_level'].'.'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+                    }
+                } else {
+                    // error
+                    $aOptions['unexpected_error'] = $sShopURL;
+                }
             } else {
-                $aOptions['https://www.example.com']    = 'https://'.$aParseUrl['third_level'].'.'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
-                $aOptions['https://example.com']        = 'https://'.$aParseUrl['third_level'].'.'.$aParseUrl['second_level'].'.'.$aParseUrl['top_level'];
+                // error
+                $aOptions['https_only_error'] = $sShopURL;
             }
         } else {
             // error
-            $aOptions['error'] = $sShopURL;
+            $aOptions['no_https_error'] = $sShopURL;
         }
 
         return $aOptions;
@@ -112,7 +131,7 @@ class Config extends Config_parent
 
     public function getBisWebPreferredDomainPreferredDomain()
     {
-        $preferredDomain = Registry::getConfig()->getConfigParam("sBisWebPreferredDomainShopURL");
+        $preferredDomain = Registry::getConfig()->getConfigParam('sBisWebPreferredDomainShopURL');
         return $preferredDomain;
     }
 

@@ -14,7 +14,7 @@ $sMetadataVersion = '2.1';
 $aModule = [
     'id' => 'bisweb_preferreddomain',
     'title' => 'BisWeb - Bevorzugte Domain',
-    'description' => 'Domain ohne oder mit www verwenden - bevorzugte Domain definieren',
+    'description' => 'Modul veranlasst 301 HTTP-Status Weiterleitung, wenn nicht bevorzugte Domain aufgerufen wird',
     'version' => '1.0.0',
     'author' => 'Tim Bischoff - Softwareentwickler',
     'url' => 'https://bisweb.me/module/seo/bevorzugte-domain.html',
@@ -22,6 +22,9 @@ $aModule = [
     'extend' => [
         // Core
         \OxidEsales\Eshop\Core\Config::class => \BisWeb\PreferredDomain\Core\Config::class,
+    ],
+    'events' => [
+        'onActivate'    => 'BisWeb\PreferredDomain\Core\Events::onActivate',
     ],
     'settings' => [
         ['group' => 'main', 'name' => 'sBisWebPreferredDomainShopURL', 'type' => 'select', 'value' => 'https://example.com', 'constraints' => 'https://www.example.com|https://example.com', 'position' => 0],
