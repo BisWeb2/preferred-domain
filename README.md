@@ -5,12 +5,11 @@ are forwarded.
 
 ## Feature
 
-Set your preferred Domain in config.inc.php and see your preferred Domain in Module Settings.
+Set your preferred Domain in config.inc.php and save your preferred Domain in Module Settings.
 
 ## Recommended
 
-I recommended to use SSL Protocol. In consequence of recommended to use SSL Protocol this 
-Module only provided Redirection from "http" to "https".
+I recommended to use SSL Protocol. In consequence this Module only provided SSL Protocol.
 
 ## Possible Domains Variants
 
@@ -56,6 +55,7 @@ Clear your tmp Directory.
 3. Login into Shop Admin Backend
 4. Activate Preferred Domain Module
 5. See your preferred Domain in the Module Setting Tab
+6. Select the shown preferred Domain and use Save Button (required)
 
 ## Composer Install Command
 
