@@ -172,7 +172,11 @@ class Config extends Config_parent
         if($aParseUrl['path'] == '') {
             $sReplaceUrl = $sBisWebPreferredDomainShopURL;
         } else {
-            $sReplaceUrl = $sBisWebPreferredDomainShopURL.$aParseUrl['path'];
+            if(substr($sBisWebPreferredDomainShopURL, -1) == '/') {
+                $sReplaceUrl = $sBisWebPreferredDomainShopURL.$aParseUrl['path'];
+            } else {
+                $sReplaceUrl = $sBisWebPreferredDomainShopURL.'/'.$aParseUrl['path'];
+            }
         }
         $aReplacesRedirection = [$sReplaceUrl, $sReplaceUrl, $sReplaceUrl, $sReplaceUrl];
 
