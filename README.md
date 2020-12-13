@@ -60,5 +60,6 @@ Clear your tmp Directory.
 ## Composer Install Command
 
 ```bash
-composer require bisweb/preferreddomain
+composer require --no-update bisweb/preferreddomain:v1.0.0
+composer update --no-dev
 ```

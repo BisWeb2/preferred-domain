@@ -1,6 +1,7 @@
 {
   "name": "bisweb/preferreddomain",
   "description": "Preferred Domain Setting Module for OXID eShop Community Edition",
+  "version": "v1.0.0",
   "type": "oxideshop-module",
   "keywords": ["oxid", "modules", "eShop", "preferreddomain"],
   "homepage": "https://bisweb.me/module/seo/bevorzugte-domain.html",

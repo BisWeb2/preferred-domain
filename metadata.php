@@ -27,25 +27,6 @@ $aModule = [
         'onActivate'    => 'BisWeb\PreferredDomain\Core\Events::onActivate',
     ],
     'settings' => [
-        ['group' => 'main', 'name' => 'sBisWebPreferredDomainShopURL', 'type' => 'select', 'value' => 'https://example.com', 'constraints' => 'https://www.example.com|https://example.com', 'position' => 0],
+        ['group' => 'main', 'name' => 'sBisWebPreferredDomainShopURL', 'type' => 'select', 'value' => 'https://example.com', 'constraints' => Registry::getConfig()->getConfigParam('sSSLShopURL').'|'.str_replace('www', '', Registry::getConfig()->getConfigParam('sSSLShopURL')), 'position' => 0],
     ],
 ];
-
-// Build Module Settings
-$oConfig = Registry::getConfig();
-if(method_exists($oConfig, 'getBisWebPreferredDomainOptions')) {
-    $aPreferredDomainOptions = $oConfig->getBisWebPreferredDomainOptions();
-    $value = '';
-    $constraints = '';
-    $i = 1;
-    foreach($aPreferredDomainOptions as $url) {
-        if($i == 1) {
-            $value = $url;
-        }
-        $constraints .= $url.'|';
-        $i++;
-    }
-
-    $aModule['settings'][0]['value'] = $value;
-    $aModule['settings'][0]['constraints'] = substr($constraints, 0, -1); // remove "|"
-}

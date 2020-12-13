@@ -212,9 +212,16 @@ class Config extends Config_parent
             $sTopLevel      = $aLevelDomainParts[2];
         } else {
             // Fallback
-            $sThirdLevel    = '';
-            $sSecondLevel   = '';
-            $sTopLevel      = '';
+            // e.g. www.example.com.ddev.site
+            $sSecondLevel = '';
+            foreach($aLevelDomainParts as $nKey => $sPart) {
+                if($nKey != 0 && $nKey != $iCountPoint) {
+                    $sSecondLevel .= $sPart.'.';
+                }
+            }
+            $sThirdLevel    = $aLevelDomainParts[0];
+            $sSecondLevel   = substr($sSecondLevel, 0, -1); // remove .
+            $sTopLevel      = end($aLevelDomainParts); // last
         }
 
         // Extend Top Level Domain
